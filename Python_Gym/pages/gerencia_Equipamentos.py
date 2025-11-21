@@ -6,8 +6,10 @@ st.set_page_config(
 
 st.write("# Gerenciar Equipamentos")
 
-st.write(pd.DataFrame({
+df=pd.DataFrame({
     'ID': [10, 20,],
     'Nome': ['cadeira extensora','esteira'],
     'data da compra': ['20/10/2024', '05/11/2023'],
-    }))
+    })
+
+st.dataframe(df.set_index('ID'))

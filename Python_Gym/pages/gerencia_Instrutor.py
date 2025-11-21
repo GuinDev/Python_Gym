@@ -6,8 +6,10 @@ st.set_page_config(
 
 st.write("# Gerenciar Instrutor")
 
-st.write(pd.DataFrame({
+df= pd.DataFrame({
     'ID': [10, 20,],
     'Nome': ['carlos alves','ana souza'],
     'CPF': [12345678900, 98765432100],
-    }))
+    })
+
+st.dataframe(df.set_index('ID'))

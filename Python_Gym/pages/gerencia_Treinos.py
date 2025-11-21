@@ -6,9 +6,11 @@ st.set_page_config(
 
 st.write("# Gerenciar Treinos")
 
-st.write(pd.DataFrame({
+df= pd.DataFrame({
     'ID': [1, 2,],
     'Nome': ['joao silva','maria oliveira'],
     'instrutor': ['carlos alves','ana souza'],
     'CPF': [12345678900, 98765432100],
-    }))
+    })
+
+st.dataframe(df.set_index('ID'))
