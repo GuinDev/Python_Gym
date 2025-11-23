@@ -13,13 +13,14 @@ def main():
 
 pg = st.navigation([
     st.Page(main, title="Main", icon=":material/favorite:"),
-    st.Page("./pages/gerencia_Alunos.py", title="Alunos", icon="🔥"),
-    st.Page("./pages/gerencia_Instrutor.py", title="Instrutores", icon="🏋️‍♂️"),
-    st.Page("./pages/gerencia_Pagamento.py", title="Pagamentos", icon="💰"),
-    st.Page("./pages/gerencia_Planos.py", title="Planos", icon="📋"),
-    st.Page("./pages/gerencia_Equipamentos.py", title="Equipamentos", icon="🏋️"),
-    st.Page("./pages/gerencia_Treinos.py", title="Treinos", icon="🤸‍♀️"),] ,
-    position="top",)
+    st.Page("pages/gerencia_Alunos.py", title="Alunos", icon="🔥"),
+    st.Page("pages/gerencia_Instrutor.py", title="Instrutores", icon="🏋️‍♂️"),
+    st.Page("pages/gerencia_Pagamento.py", title="Pagamentos", icon="💰"),
+    st.Page("pages/gerencia_Planos.py", title="Planos", icon="📋"),
+    st.Page("pages/gerencia_Equipamentos.py", title="Equipamentos", icon="🏋️"),
+    st.Page("pages/gerencia_Treinos.py", title="Treinos", icon="🤸‍♀️"),
+    st.Page("pages/dbteste.py", title="Popular DB", icon="🔥"),
+    ], position="top",)
 
 pg.run()
 
