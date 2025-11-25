@@ -1,15 +1,22 @@
 import streamlit as st
 import pandas as pd
+from database import get_conn
 
 st.set_page_config( 
     page_title="Gerenciar Planos",)
 
-st.write("# Gerenciar Planos")
+st.title("Gerenciar Planos")
 
-df= pd.DataFrame({
-    'ID': [1, 2,],
-    'Nome': ['joao silva','maria oliveira'],
-    'CPF': [12345678900, 98765432100],
-    })
+def carregar_planos():
+    conn = get_conn()
+    query = 'SELECT nome, preco, duracao_meses, beneficios FROM plano'
+    df = pd.read_sql(query, conn)
+    conn.close()
+    return df
 
-st.dataframe(df.set_index('ID'))
+df = carregar_planos()
+
+if df.empty:
+    st.warning('Nenhum plano foi cadastrado ainda.')
+else:
+    st.dataframe(df, width='stretch')

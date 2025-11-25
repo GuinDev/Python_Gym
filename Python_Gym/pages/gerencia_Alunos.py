@@ -8,7 +8,7 @@ st.title('Gerenciar Alunos')
 
 def carregar_alunos():
     conn = get_conn()
-    query = "SELECT p.nome, p.cpf, p.email, p.telefone, a.historico_saude, a.objetivos FROM pessoa p INNER JOIN aluno a ON p.id_pessoa = a.id_pessoa"
+    query = "SELECT p.nome AS 'Nome', p.cpf AS 'CPF', p.email AS 'E-Mail', p.telefone AS 'Telefone', pl.nome AS 'Plano Atual', a.historico_saude AS 'Histórico de Saúde', a.objetivos AS 'Objetivos' FROM pessoa p INNER JOIN aluno a ON p.id_pessoa = a.id_pessoa INNER JOIN plano pl ON a.id_plano = pl.id_plano"
     df = pd.read_sql(query, conn)
     conn.close()
     return df
@@ -20,6 +20,12 @@ if df.empty:
 else:
     st.dataframe(df, width='stretch')
 
+def lista_planos():
+    conn = get_conn()
+    planos = pd.read_sql("SELECT concat(nome, ' - R$ ', preco) AS 'nome' FROM plano", conn)
+    conn.close()
+    return planos['nome'].tolist()
+
 @st.dialog('Adicionar Aluno')
 def cadastrar_aluno():
     with st.form('adicionar_aluno'):
@@ -30,6 +36,7 @@ def cadastrar_aluno():
         telefone = st.text_input('Telefone', placeholder='(00) 98765-4321')
         historico = st.text_input('Histórico de saúde', placeholder='Sem restrições')
         objetivo = st.text_input('Objetivo', placeholder='Ganho de massa')
+        plano = st.selectbox('Plano', lista_planos()).split(' - ')[0]
         
         if st.form_submit_button('Cadastrar Aluno', width='stretch'):
             if not all([nome, cpf, email]):
@@ -53,7 +60,9 @@ def cadastrar_aluno():
             try:
                 c.execute('INSERT INTO pessoa (nome, cpf, email, telefone) VALUES (?, ?, ?, ?)', (nome, cpf_limpo, email, telefone_limpo))
                 id_pessoa = c.lastrowid
-                c.execute('INSERT INTO aluno (id_pessoa, historico_saude, objetivos) VALUES (?, ?, ?)', (id_pessoa, historico or None, objetivo or None))
+                c.execute('SELECT id_plano FROM plano WHERE nome = ?', (plano,))
+                plano_escolhido = c.fetchone()[0]
+                c.execute('INSERT INTO aluno (id_pessoa, historico_saude, objetivos, id_plano) VALUES (?, ?, ?, ?)', (id_pessoa, historico or None, objetivo or None, plano_escolhido))
 
                 conn.commit()
                 st.success(f'Aluno {nome} cadastrado com sucesso!')
@@ -109,7 +118,7 @@ def editar_aluno():
                 c = conn.cursor()
 
                 try: 
-                    c.execute('SELECT p.id_pessoa, p.nome, p.cpf, p.email, p.telefone, a.historico_saude, a.objetivos FROM pessoa p INNER JOIN aluno a ON p.id_pessoa = a.id_pessoa WHERE p.cpf = ?', (cpf_limpo,))
+                    c.execute('SELECT p.id_pessoa, p.nome, p.cpf, p.email, p.telefone, a.historico_saude, a.objetivos, a.id_plano FROM pessoa p INNER JOIN aluno a ON p.id_pessoa = a.id_pessoa WHERE p.cpf = ?', (cpf_limpo,))
                     resultado = c.fetchone()
                     conn.close()
                     
@@ -121,7 +130,8 @@ def editar_aluno():
                             'email': resultado[3],
                             'telefone': resultado[4],
                             'historico': resultado[5] or '',
-                            'objetivo': resultado[6] or ''
+                            'objetivo': resultado[6] or '',
+                            'plano': resultado[7]
                         }
 
                         st.success(f'Aluno encontrado: {resultado[1]} ({resultado[2]})')
@@ -144,6 +154,7 @@ def editar_aluno():
             novo_telefone = st.text_input('Telefone', aluno['telefone'])
             novo_historico = st.text_input('Histórico de Saúde', aluno['historico'])
             novo_objetivo = st.text_input('Objetivo', aluno['objetivo'])
+            novo_plano = st.selectbox(('Plano'), lista_planos(), aluno['plano'] - 1).split(' - ')[0]
 
             col1, col2 = st.columns(2)
 
@@ -170,7 +181,7 @@ def editar_aluno():
 
                     try:
                         c.execute('UPDATE pessoa SET nome = ?, cpf = ?, email = ?, telefone = ? WHERE id_pessoa = ?', (novo_nome, novo_cpf_limpo, novo_email, novo_telefone or None, aluno['id_pessoa']))
-                        c.execute('UPDATE aluno SET historico_saude = ?, objetivos = ? WHERE id_pessoa = ?', (novo_historico, novo_objetivo, aluno['id_pessoa']))
+                        c.execute('UPDATE aluno SET historico_saude = ?, objetivos = ?, id_plano = (SELECT id_plano FROM plano WHERE nome = ?) WHERE id_pessoa = ?', (novo_historico, novo_objetivo, novo_plano, aluno['id_pessoa']))
                         conn.commit()
                         conn.close()
 
