@@ -8,7 +8,7 @@ st.title('Gerenciar Instrutores')
 
 def carregar_instrutores():
     conn = get_conn()
-    query = "SELECT p.nome, p.cpf, p.email, i.especialidades FROM pessoa p INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa"
+    query = 'SELECT p.nome AS "Nome", p.cpf AS "CPF", p.email AS "E-Mail", i.especialidades AS "Especialidades" FROM pessoa p INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa'
     df = pd.read_sql(query, conn)
     conn.close()
     return df
