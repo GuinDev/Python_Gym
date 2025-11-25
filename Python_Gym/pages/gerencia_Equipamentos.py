@@ -1,15 +1,17 @@
 import streamlit as st
 import pandas as pd
+from database import get_conn
 
 st.set_page_config( 
     page_title="Gerenciar Equipamentos",)
 
 st.write("# Gerenciar Equipamentos")
 
-df=pd.DataFrame({
-    'ID': [10, 20,],
-    'Nome': ['cadeira extensora','esteira'],
-    'data da compra': ['20/10/2024', '05/11/2023'],
-    })
+conn = get_conn()
+c = conn.cursor()
+c.execute('UPDATE plano SET preco = 20.99 WHERE id_plano = 4')
+print('foi')
+df = pd.read_sql('SELECT * FROM plano', conn)
+conn.close()
 
-st.dataframe(df.set_index('ID'))
+st.dataframe(df)

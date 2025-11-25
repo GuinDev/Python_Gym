@@ -55,7 +55,7 @@ def init_db():
               id_pessoa INTEGER UNIQUE NOT NULL,
               historico_saude TEXT,
               objetivos TEXT,
-              id_plano INTEGER,
+              id_plano INTEGER NOT NULL,
               FOREIGN KEY (id_pessoa) REFERENCES pessoa(id_pessoa)
                 ON DELETE CASCADE ON UPDATE CASCADE,
               FOREIGN KEY (id_plano) REFERENCES plano(id_plano)

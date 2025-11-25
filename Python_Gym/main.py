@@ -12,7 +12,7 @@ def main():
 
 
 pg = st.navigation([
-    st.Page(main, title="Main", icon=":material/favorite:"),
+    st.Page(main, title="Dashboard", icon=":material/home:"),
     st.Page("pages/gerencia_Alunos.py", title="Alunos", icon="🔥"),
     st.Page("pages/gerencia_Instrutor.py", title="Instrutores", icon="🏋️‍♂️"),
     st.Page("pages/gerencia_Pagamento.py", title="Pagamentos", icon="💰"),
