@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import time
-import os
 from database import get_conn
 
 st.set_page_config(page_title="Gerenciar Alunos",)
