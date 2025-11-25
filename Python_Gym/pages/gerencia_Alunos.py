@@ -26,9 +26,9 @@ def lista_planos():
     conn.close()
     return planos['nome'].tolist()
 
-@st.dialog('Adicionar Aluno')
+@st.dialog('Cadastrar Aluno')
 def cadastrar_aluno():
-    with st.form('adicionar_aluno'):
+    with st.form('cadastrar_aluno'):
         st.subheader('Preencha com os dados do aluno')
         nome = st.text_input('Nome', placeholder='Nome')
         cpf = st.text_input('CPF', placeholder='000.000.000-00 ou 98765432100')

@@ -19,7 +19,7 @@ planos = [
     ("Mensal Básico", 89.90, 1, "Acesso das 6h às 22h"),
     ("Mensal Premium", 129.90, 1, "Acesso 24h + todas as aulas coletivas"),
     ("Trimestral", 239.70, 3, "Desconto de 10% + brinde"),
-    ("Anual", 899.00, 12, "Melhor custo-benefício + 1 mês grátis"),
+    ("Anual", 899.90, 12, "Melhor custo-benefício + 1 mês grátis"),
 ]
 
 for p in planos:
