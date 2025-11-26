@@ -8,7 +8,16 @@ st.title('Gerenciar Instrutores')
 
 def carregar_instrutores():
     conn = get_conn()
-    query = 'SELECT p.nome AS "Nome", p.cpf AS "CPF", p.email AS "E-Mail", i.especialidades AS "Especialidades" FROM pessoa p INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa'
+    query = '''SELECT   p.nome AS "Nome", 
+                        p.cpf AS "CPF", 
+                        p.email AS "E-Mail", 
+                        i.especialidades AS "Especialidades", 
+                        CONCAT(h.data_inicio, " - ", h.data_fim) AS "Expediente", 
+                        h.sala AS "Sala" 
+                FROM pessoa p 
+                INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa
+                INNER JOIN horario_disponivel hd ON i.id_instrutor = hd.id_instrutor
+                INNER JOIN horario h ON hd.id_horario = h.id_horario'''
     df = pd.read_sql(query, conn)
     conn.close()
     return df
@@ -29,6 +38,9 @@ def cadastrar_instrutor():
         email = st.text_input('E-Mail', placeholder='email@exemplo.com')
         telefone = st.text_input('Telefone', placeholder='(00) 98765-4321')
         especialidades = st.text_input('Especialidades', placeholder='Musculação, Crossfit')
+        horario_inicio = st.time_input('Início do expediente').isoformat()
+        horario_fim = st.time_input('Fim do expediente').isoformat()
+        sala_usada = st.text_input('Sala usada', placeholder='Musculação, Crossfit')
 
         if st.form_submit_button('Cadastrar Instrutor', width='stretch'):
             if not all([nome, cpf, email]):
@@ -46,6 +58,10 @@ def cadastrar_instrutor():
                 st.error('Telefone inválido.')
                 return
             
+            if horario_fim < horario_inicio:
+                st.error('Horários de início e fim inválidos')
+                return
+            
             conn = get_conn()
             c = conn.cursor()
 
@@ -53,6 +69,10 @@ def cadastrar_instrutor():
                 c.execute('INSERT INTO pessoa (nome, cpf, email, telefone) VALUES (?, ?, ?, ?)', (nome, cpf_limpo, email, telefone_limpo))
                 id_pessoa = c.lastrowid
                 c.execute('INSERT INTO instrutor (id_pessoa, especialidades) VALUES (?, ?)', (id_pessoa, especialidades))
+                id_instrutor = c.lastrowid
+                c.execute('INSERT INTO horario (data_inicio, data_fim, sala) VALUES (?, ?, ?)', (horario_inicio, horario_fim, sala_usada))
+                id_horario = c.lastrowid
+                c.execute('INSERT INTO horario_disponivel (id_instrutor, id_horario) VALUES (?, ?)', (id_instrutor, id_horario))
 
                 conn.commit()
                 st.success(f'Instrutor {nome} cadastrado com sucesso!')
@@ -107,7 +127,21 @@ def editar_instrutor():
                 c = conn.cursor()
 
                 try:
-                    c.execute('SELECT p.id_pessoa, p.nome, p.cpf, p.email, p.telefone, i.especialidades FROM pessoa p INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa WHERE cpf = ?', (cpf_limpo,))
+                    c.execute('''SELECT p.id_pessoa, 
+                                        p.nome, 
+                                        p.cpf, 
+                                        p.email, 
+                                        p.telefone, 
+                                        i.id_instrutor, 
+                                        i.especialidades, 
+                                        CONCAT(h.data_inicio,' - ', h.data_fim) AS 'Expediente', 
+                                        h.sala,
+                                        h.id_horario
+                                FROM pessoa p 
+                                INNER JOIN instrutor i ON p.id_pessoa = i.id_pessoa 
+                                INNER JOIN horario_disponivel hd ON i.id_instrutor = hd.id_instrutor
+                                INNER JOIN horario h ON hd.id_horario = h.id_horario 
+                                WHERE cpf = ?''', (cpf_limpo,))
                     resultado = c.fetchone()
                     conn.close()
 
@@ -118,7 +152,11 @@ def editar_instrutor():
                             'cpf': resultado[2],
                             'email': resultado[3],
                             'telefone': resultado[4],
-                            'especialidades': resultado[5]
+                            'id_instrutor': resultado[5],
+                            'especialidades': resultado[6],
+                            'expediente': resultado[7],
+                            'sala': resultado[8],
+                            'id_horario': resultado[9]
                         }
 
                         st.success(f'Instrutor encontrado: {resultado[1]} ({resultado[2]})')
@@ -141,6 +179,9 @@ def editar_instrutor():
             novo_email = st.text_input('E-Mail', instrutor['email'])
             novo_telefone = st.text_input('Telefone', instrutor['telefone'])
             nova_especialidade = st.text_input('Especialidades', instrutor['especialidades'])
+            novo_horario_inicio = st.time_input('Início do expediente', instrutor['expediente'].split(' - ')[0])
+            novo_horario_fim = st.time_input('Fim do expediente', instrutor['expediente'].split(' - ')[1])
+            novo_sala_usada = st.text_input('Sala usada', instrutor['sala'])
 
             col1, col2 = st.columns(2)
             with col1:
@@ -160,6 +201,10 @@ def editar_instrutor():
                     st.error('CPF inválido.')
                     return
                 
+                elif novo_horario_fim < novo_horario_inicio:
+                    st.error('Horários de início e fim inválidos')
+                    return
+                
                 else:
                     conn = get_conn()
                     c = conn.cursor()
@@ -167,6 +212,7 @@ def editar_instrutor():
                     try:
                         c.execute('UPDATE pessoa SET nome = ?, cpf = ?, email = ?, telefone = ? WHERE id_pessoa = ?', (novo_nome, novo_cpf_limpo, novo_email, novo_telefone or None, instrutor['id_pessoa']))
                         c.execute('UPDATE instrutor SET especialidades = ? WHERE id_pessoa = ?', (nova_especialidade, instrutor['id_pessoa']))
+                        c.execute('UPDATE horario SET data_inicio = ?, data_fim = ?, sala = ? WHERE id_horario = ?', (novo_horario_inicio, novo_horario_fim, novo_sala_usada, instrutor['id_horario']))
                         conn.commit()
                         conn.close()
 

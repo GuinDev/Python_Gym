@@ -19,7 +19,6 @@ pg = st.navigation([
     st.Page("pages/gerencia_Planos.py", title="Planos", icon="📋"),
     st.Page("pages/gerencia_Equipamentos.py", title="Equipamentos", icon="🏋️"),
     st.Page("pages/gerencia_Treinos.py", title="Treinos", icon="🤸‍♀️"),
-    st.Page("pages/dbteste.py", title="Popular DB", icon="🔥"),
     ], position="top",)
 
 pg.run()
