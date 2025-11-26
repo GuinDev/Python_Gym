@@ -19,7 +19,7 @@ def carregar_infos():
 
 dados = carregar_infos()
 
-st.title('Dashboard')
+st.title('Dashboard', )
 
 col1, col2 = st.columns(2)
 with col1:
