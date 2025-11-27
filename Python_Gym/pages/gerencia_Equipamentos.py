@@ -17,7 +17,7 @@ def carregar_equipamentos():
 df = carregar_equipamentos()
 
 if df.empty:
-    st.warning('Nenhum equipamento cadastrado ainda.')
+    st.info('Nenhum equipamento cadastrado ainda.')
 else:
     st.dataframe(df, width='stretch')
 

@@ -25,7 +25,7 @@ def carregar_instrutores():
 df = carregar_instrutores()
 
 if df.empty:
-    st.warning('Nenhum instrutor cadastrado ainda.')
+    st.info('Nenhum instrutor cadastrado ainda.')
 else:
     st.dataframe(df, width='stretch')
 

@@ -86,8 +86,6 @@ def get_aluno_treino():
     ids = pd.read_sql('SELECT CONCAT("(", t.id_treino, ") ", p.nome) AS treino FROM treino t INNER JOIN aluno a ON t.id_aluno = a.id_aluno INNER JOIN pessoa p ON a.id_pessoa = p.id_pessoa', conn)
     conn.close()
     return ids
-    
-df = st.dataframe(get_aluno_treino())
 
 @st.dialog("Cadastrar Treino")
 def cadastrar_treino():

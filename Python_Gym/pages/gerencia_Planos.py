@@ -18,7 +18,7 @@ def carregar_planos():
 df = carregar_planos()
 
 if df.empty:
-    st.warning('Nenhum plano foi cadastrado ainda.')
+    st.info('Nenhum plano foi cadastrado ainda.')
 else:
     st.dataframe(df, width='stretch')
 
