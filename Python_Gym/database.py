@@ -37,9 +37,9 @@ def init_db():
     c.execute('''CREATE TABLE IF NOT EXISTS equipamento (
               id_equipamento INTEGER PRIMARY KEY AUTOINCREMENT,
               nome TEXT NOT NULL,
-              tipo TEXT,
-              estado TEXT NOT NULL,
-              manual TEXT
+              tipo TEXT NOT NULL CHECK (tipo IN ('Cardio', 'Musculação', 'Funcional', 'Acessórios', 'Peso livre')),
+              estado TEXT NOT NULL CHECK (estado IN ('Disponivel', 'Em manutenção', 'Quebrado', 'Desativado')),
+              observacoes TEXT
               )''')
 
     c.execute('''CREATE TABLE IF NOT EXISTS exercicio (

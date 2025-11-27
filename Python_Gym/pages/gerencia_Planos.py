@@ -10,7 +10,7 @@ st.title("Gerenciar Planos")
 
 def carregar_planos():
     conn = get_conn()
-    query = 'SELECT nome, preco, duracao_meses, beneficios FROM plano'
+    query = 'SELECT nome AS "Nome", preco AS "Preço", duracao_meses AS "Duração (meses)", beneficios AS "Benefícios" FROM plano'
     df = pd.read_sql(query, conn)
     conn.close()
     return df
@@ -18,7 +18,7 @@ def carregar_planos():
 df = carregar_planos()
 
 if df.empty:
-    st.warning('Nenhum plano foi cadastrado ainda.')
+    st.info('Nenhum plano foi cadastrado ainda.')
 else:
     st.dataframe(df, width='stretch')
 

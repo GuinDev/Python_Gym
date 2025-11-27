@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
+import datetime
 from database import get_conn
 
 st.set_page_config(page_title="Gerenciar Alunos",)
@@ -16,7 +17,7 @@ def carregar_alunos():
 df = carregar_alunos()
 
 if df.empty:
-    st.warning('Nenhum aluno cadastrado ainda.')
+    st.info('Nenhum aluno cadastrado ainda.')
 else:
     st.dataframe(df, width='stretch')
 
@@ -36,7 +37,11 @@ def cadastrar_aluno():
         telefone = st.text_input('Telefone', placeholder='(00) 98765-4321')
         historico = st.text_input('Histórico de saúde', placeholder='Sem restrições')
         objetivo = st.text_input('Objetivo', placeholder='Ganho de massa')
-        plano = st.selectbox('Plano', lista_planos()).split(' - ')[0]
+        plano = st.selectbox('Plano', lista_planos()).split(' - ')
+        valor = plano[1].split(' ')[1]
+        plano = plano[0]
+        data_vencimento = st.date_input('Data de vencimento').isoformat()
+        metodo_pagamento = st.selectbox('Método de pagamento', ['Débito', 'Crédito', 'Boleto', 'Dinheiro'])
         
         if st.form_submit_button('Cadastrar Aluno', width='stretch'):
             if not all([nome, cpf, email]):
@@ -60,9 +65,14 @@ def cadastrar_aluno():
             try:
                 c.execute('INSERT INTO pessoa (nome, cpf, email, telefone) VALUES (?, ?, ?, ?)', (nome, cpf_limpo, email, telefone_limpo))
                 id_pessoa = c.lastrowid
+
                 c.execute('SELECT id_plano FROM plano WHERE nome = ?', (plano,))
                 plano_escolhido = c.fetchone()[0]
+
                 c.execute('INSERT INTO aluno (id_pessoa, historico_saude, objetivos, id_plano) VALUES (?, ?, ?, ?)', (id_pessoa, historico or None, objetivo or None, plano_escolhido))
+                id_aluno = c.lastrowid
+
+                c.execute('INSERT INTO pagamento (id_aluno, valor, metodo, data, status) VALUES (?, ?, ?, ?, ?)', (id_aluno, valor, metodo_pagamento, data_vencimento, 'Pendente'))
 
                 conn.commit()
                 st.success(f'Aluno {nome} cadastrado com sucesso!')
